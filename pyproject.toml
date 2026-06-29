@@ -53,6 +53,9 @@ packages = ["mini_reach"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "integration: integration tests that require network"
+]
 
 [tool.ruff]
 line-length = 100
