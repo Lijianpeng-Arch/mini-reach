@@ -14,6 +14,7 @@ mini-reach 是一个简化版的 [Agent-Reach](https://github.com/Panniantong/Ag
 - 🔍 搜索 GitHub 仓库
 - 📰 订阅 RSS 资讯
 - 🎬 提取 YouTube 字幕
+- 📺 搜索 B站视频
 
 那么 mini-reach 就是为你设计的！
 
@@ -28,10 +29,11 @@ mini-reach 是一个简化版的 [Agent-Reach](https://github.com/Panniantong/Ag
 
 | 渠道 | 功能 | 前置条件 |
 |------|------|----------|
-| `web` | 读取任意网页（Markdown 格式） | 无 |
+| `web` | 读取任意网页 | 无 |
 | `github` | 搜索仓库、读取文件、README | 安装 gh CLI |
 | `rss` | 读取 RSS/Atom 订阅源 | 无 |
-| `youtube` | 提取视频字幕、搜索视频 | 安装 yt-dlp |
+| `youtube` | 提取视频字幕 | 安装 yt-dlp |
+| `bilibili` | 搜索视频、获取信息 | 无 |
 
 ## 🚀 快速开始
 
@@ -98,6 +100,14 @@ print(result.content)
 
 # 搜索 YouTube 视频
 result = mr.search("youtube", "python tutorial")
+print(result.content)
+
+# 搜索 B站视频
+result = mr.search("bilibili", "python 教程")
+print(result.content)
+
+# 获取 B站视频信息
+result = mr.read("bilibili", "BV1xx411c7mD")
 print(result.content)
 
 # 诊断渠道状态
