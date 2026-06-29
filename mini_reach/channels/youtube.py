@@ -227,43 +227,45 @@ class YouTubeChannel(Channel):
 
         logger.info(f"搜索 YouTube: {query}")
 
-        # 使用 Invidious 实例搜索
-        try:
-            import requests
-            response = requests.get(
-                "https://yewtu.be/api/v1/search",
-                params={
-                    "q": query,
-                    "type": "video",
-                    "limit": limit
-                },
-                timeout=15
-            )
+        # 使用 Invidious 实例搜索（按优先级尝试）
+        invidious_instances = [
+            "https://yewtu.be",
+            "https://invidious.privacyredirect.com",
+            "https://invidious.snopyta.org",
+        ]
 
-            if response.status_code == 200:
-                videos = response.json()
-                content = self._format_search_results(query, videos)
-
-                return ChannelResult(
-                    success=True,
-                    content=content,
-                    source="invidious-api",
-                    metadata={"count": len(videos), "query": query}
-                )
-            else:
-                return ChannelResult(
-                    success=False,
-                    error=f"搜索失败: HTTP {response.status_code}",
-                    source="invidious-api"
+        for instance in invidious_instances:
+            try:
+                import requests
+                response = requests.get(
+                    f"{instance}/api/v1/search",
+                    params={
+                        "q": query,
+                        "type": "video",
+                        "limit": limit
+                    },
+                    timeout=15
                 )
 
-        except Exception as e:
-            logger.error(f"YouTube 搜索失败: {e}")
-            return ChannelResult(
-                success=False,
-                error=f"搜索失败: {e}",
-                source="invidious-api"
-            )
+                if response.status_code == 200:
+                    videos = response.json()
+                    content = self._format_search_results(query, videos)
+
+                    return ChannelResult(
+                        success=True,
+                        content=content,
+                        source="invidious-api",
+                        metadata={"count": len(videos), "query": query}
+                    )
+
+            except Exception:
+                continue
+
+        return ChannelResult(
+            success=False,
+            error="所有 Invidious 实例都不可用，请检查网络连接",
+            source="invidious-api"
+        )
 
     def _download_subtitle(self, video_id: str, lang: str) -> ChannelResult:
         """下载字幕文件"""
