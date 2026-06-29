@@ -326,7 +326,7 @@ class GitHubChannel(Channel):
             f"- 👁 {data.get('watchers_count', 0)} Watchers",
             "",
             f"**语言**: {data.get('language', '未知')}",
-            f"**许可证**: {data.get('license', {}).get('name', '无')}",
+            f"**许可证**: {data.get('license', {}).get('name') or '无' if isinstance(data.get('license'), dict) else '无'}",
             f"**最后更新**: {data.get('pushed_at', '未知')}",
             "",
             f"🔗 {data.get('html_url', '')}"
