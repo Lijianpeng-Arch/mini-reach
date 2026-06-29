@@ -87,10 +87,11 @@ def main() -> int:
   mini-reach doctor
 
 支持渠道:
-  web     - 网页阅读（Jina Reader）
-  github  - GitHub 仓库和文件
-  rss     - RSS/Atom 订阅源
-  youtube - YouTube 视频字幕
+  web      - 网页阅读
+  github   - GitHub 仓库和文件
+  rss      - RSS/Atom 订阅源
+  youtube  - YouTube 视频字幕
+  bilibili - B站视频搜索和信息
         """
     )
 
@@ -101,13 +102,13 @@ def main() -> int:
 
     # read 命令
     read_parser = subparsers.add_parser("read", help="读取内容")
-    read_parser.add_argument("channel", choices=["web", "github", "rss", "youtube"], help="渠道名称")
+    read_parser.add_argument("channel", choices=["web", "github", "rss", "youtube", "bilibili"], help="渠道名称")
     read_parser.add_argument("url", help="URL 或资源路径")
     read_parser.set_defaults(func=cmd_read)
 
     # search 命令
     search_parser = subparsers.add_parser("search", help="搜索内容")
-    search_parser.add_argument("channel", choices=["github", "youtube"], help="渠道名称")
+    search_parser.add_argument("channel", choices=["github", "youtube", "bilibili"], help="渠道名称")
     search_parser.add_argument("query", help="搜索关键词")
     search_parser.add_argument("--limit", "-n", type=int, default=10, help="结果数量（默认 10）")
     search_parser.set_defaults(func=cmd_search)
