@@ -10,6 +10,8 @@ from loguru import logger
 from mini_reach.channels.base import Channel, ChannelResult
 from mini_reach.channels.web import WebChannel
 from mini_reach.channels.github import GitHubChannel
+from mini_reach.channels.rss import RSSChannel
+from mini_reach.channels.youtube import YouTubeChannel
 
 
 class MiniReach:
@@ -35,6 +37,8 @@ class MiniReach:
         self._channel_classes: dict[str, Type[Channel]] = {
             "web": WebChannel,
             "github": GitHubChannel,
+            "rss": RSSChannel,
+            "youtube": YouTubeChannel,
         }
 
         if auto_init:
