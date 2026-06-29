@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mini-reach"
+version = "0.1.0"
+description = "让 AI Agent 连接互联网的轻量级工具箱"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Jiutian", email = "jiutian@example.com" }
+]
+keywords = ["ai", "agent", "internet", "web", "github", "mcp"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "requests>=2.28.0",
+    "feedparser>=6.0.0",
+    "loguru>=0.7.0",
+    "rich>=13.0.0",
+    "pyyaml>=6.0.0",
+    "yt-dlp>=2024.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+mini-reach = "mini_reach.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Jiutian-ai/mini-reach"
+Repository = "https://github.com/Jiutian-ai/mini-reach"
+Issues = "https://github.com/Jiutian-ai/mini-reach/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mini_reach"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
