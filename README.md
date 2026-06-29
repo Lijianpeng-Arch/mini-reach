@@ -12,15 +12,16 @@ mini-reach 是一个简化版的 [Agent-Reach](https://github.com/Panniantong/Ag
 如果你想让 Claude Code、Cursor、Windsurf 等 AI 编程工具能够：
 - 📖 读取任意网页内容
 - 🔍 搜索 GitHub 仓库
-- 📂 读取仓库文件和 README
+- 📰 订阅 RSS 资讯
+- 🎬 提取 YouTube 字幕
 
 那么 mini-reach 就是为你设计的！
 
 ## ✨ 特性
 
-- 🪶 **轻量级** - 只有 2 个核心渠道，代码简洁易理解
+- 🪶 **轻量级** - 代码简洁，核心只有 ~800 行
 - 🔌 **可扩展** - 基于 Channel 基类，轻松添加新平台
-- 🎨 **开箱即用** - 零配置，web 渠道无需任何设置
+- 🎨 **开箱即用** - 零配置，web/rss 渠道无需任何设置
 - 📝 **代码即文档** - 适合学习 AI Agent 架构设计
 
 ## 📦 支持的渠道
@@ -29,6 +30,8 @@ mini-reach 是一个简化版的 [Agent-Reach](https://github.com/Panniantong/Ag
 |------|------|----------|
 | `web` | 读取任意网页（Markdown 格式） | 无 |
 | `github` | 搜索仓库、读取文件、README | 安装 gh CLI |
+| `rss` | 读取 RSS/Atom 订阅源 | 无 |
+| `youtube` | 提取视频字幕、搜索视频 | 安装 yt-dlp |
 
 ## 🚀 快速开始
 
@@ -36,7 +39,7 @@ mini-reach 是一个简化版的 [Agent-Reach](https://github.com/Panniantong/Ag
 
 ```bash
 # 克隆项目
-git clone https://github.com/Jiutian-ai/mini-reach.git
+git clone https://github.com/Lijianpeng-Arch/mini-reach.git
 cd mini-reach
 
 # 创建虚拟环境（推荐）
@@ -51,18 +54,20 @@ pip install -r requirements.txt
 
 #### GitHub 渠道（可选）
 ```bash
-# 安装 GitHub CLI
 # macOS
 brew install gh
-
 # Windows
 winget install GitHub.cli
-
 # Linux
 sudo apt install gh
 
 # 登录（读取私有仓库需要）
 gh auth login
+```
+
+#### YouTube 渠道（可选）
+```bash
+pip install yt-dlp
 ```
 
 ### 使用方式
@@ -77,16 +82,26 @@ mr = MiniReach()
 
 # 读取网页
 result = mr.read("web", "https://github.com")
-if result.success:
-    print(result.content)
+print(result.content)
 
 # 搜索 GitHub
 result = mr.search("github", "react hooks")
-if result.success:
-    print(result.content)
+print(result.content)
 
-# 读取 GitHub 仓库
-result = mr.read("github", "anthropics/claude-code")
+# 读取 RSS
+result = mr.read("rss", "https://example.com/feed.xml")
+print(result.content)
+
+# 提取 YouTube 字幕
+result = mr.read("youtube", "dQw4w9WgXcQ")
+print(result.content)
+
+# 搜索 YouTube 视频
+result = mr.search("youtube", "python tutorial")
+print(result.content)
+
+# 诊断渠道状态
+mr.doctor()
 ```
 
 #### 命令行
@@ -101,11 +116,21 @@ mini-reach search github python async
 # 读取 GitHub 仓库信息
 mini-reach read github owner/repo
 
-# 读取 GitHub 文件
-mini-reach read github owner/repo/path/to/file.py
+# 读取 RSS 订阅
+mini-reach read rss https://example.com/feed.xml
+
+# 提取 YouTube 字幕（视频 ID 或完整链接）
+mini-reach read youtube dQw4w9WgXcQ
+mini-reach read youtube https://youtube.com/watch?v=dQw4w9WgXcQ
+
+# 搜索 YouTube 视频
+mini-reach search youtube python tutorial
 
 # 诊断渠道状态
 mini-reach doctor
+
+# 列出所有渠道
+mini-reach channels
 ```
 
 ## 🏗️ 项目架构
@@ -119,8 +144,10 @@ mini-reach/
 │   └── channels/
 │       ├── __init__.py
 │       ├── base.py       # Channel 基类
-│       ├── web.py        # 网页渠道
-│       └── github.py     # GitHub 渠道
+│       ├── web.py        # 网页渠道（Jina Reader）
+│       ├── github.py     # GitHub 渠道（gh CLI）
+│       ├── rss.py        # RSS 渠道（feedparser）
+│       └── youtube.py    # YouTube 渠道（yt-dlp）
 ├── tests/                # 测试
 ├── pyproject.toml        # 项目配置
 └── README.md
@@ -181,4 +208,5 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 
 - [Agent-Reach](https://github.com/Panniantong/Agent-Reach) - 灵感来源
 - [Jina AI](https://jina.ai/reader) - 提供网页转 Markdown 服务
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - YouTube 下载工具
 - [GitHub CLI](https://cli.github.com/) - 命令行 GitHub 工具
