@@ -10,10 +10,36 @@ GitHub 渠道 - 使用 gh CLI 操作 GitHub
 
 import subprocess
 import json
+import os
+import shutil
 from typing import Optional
 from loguru import logger
 
 from mini_reach.channels.base import Channel, ChannelResult
+
+
+def _find_gh_executable() -> Optional[str]:
+    """查找 gh 可执行文件路径"""
+    # 1. 尝试直接调用（PATH 中）
+    if shutil.which("gh"):
+        return "gh"
+
+    # 2. Windows 常见路径
+    windows_paths = [
+        r"C:\Program Files\GitHub CLI\gh.exe",
+        r"C:\Program Files (x86)\GitHub CLI\gh.exe",
+    ]
+    for path in windows_paths:
+        if os.path.exists(path):
+            return path
+
+    # 3. 尝试 PATH 环境变量中的目录
+    for path in os.environ.get("PATH", "").split(os.pathsep):
+        gh_path = os.path.join(path, "gh.exe")
+        if os.path.exists(gh_path):
+            return gh_path
+
+    return None
 
 
 class GitHubChannel(Channel):
@@ -40,11 +66,13 @@ class GitHubChannel(Channel):
     def __init__(self):
         self.gh_available: bool = False
         self.gh_authenticated: bool = False
+        self._gh_path: Optional[str] = None
         super().__init__()
 
     def _init_channel(self) -> None:
         """初始化时检查 gh CLI 状态"""
         logger.debug(f"初始化 {self.name} 渠道")
+        self._gh_path = _find_gh_executable()
 
     def check_available(self) -> bool:
         """
@@ -54,10 +82,14 @@ class GitHubChannel(Channel):
         1. gh 命令是否存在
         2. 是否已登录（gh auth status）
         """
+        if not self._gh_path:
+            self._check_error = "gh CLI 未安装，请访问 https://cli.github.com/ 安装"
+            return False
+
         try:
             # 检查 gh 是否安装
             result = subprocess.run(
-                ["gh", "--version"],
+                [self._gh_path, "--version"],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -71,7 +103,7 @@ class GitHubChannel(Channel):
 
             # 检查是否已登录（公开仓库不需要登录，但认证后功能更多）
             auth_result = subprocess.run(
-                ["gh", "auth", "status"],
+                [self._gh_path, "auth", "status"],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -106,8 +138,9 @@ class GitHubChannel(Channel):
             (returncode, stdout, stderr)
         """
         try:
+            gh_cmd = [self._gh_path] if self._gh_path else ["gh"]
             result = subprocess.run(
-                ["gh"] + args,
+                gh_cmd + args,
                 capture_output=True,
                 text=True,
                 timeout=timeout
@@ -144,7 +177,7 @@ class GitHubChannel(Channel):
         returncode, stdout, stderr = self._run_gh([
             "search", "repos", query,
             "--limit", str(limit),
-            "--json", "name,owner,description,url,stargazerCount,language"
+            "--json", "name,owner,description,url,stargazersCount,language"
         ])
 
         if returncode == 0:
@@ -178,7 +211,7 @@ class GitHubChannel(Channel):
         lines = ["# GitHub 仓库搜索结果\n"]
         for i, repo in enumerate(repos, 1):
             lines.append(f"## {i}. {repo['owner']['login']}/{repo['name']}")
-            lines.append(f"- ⭐ {repo.get('stargazerCount', 0)}")
+            lines.append(f"- ⭐ {repo.get('stargazersCount', 0)}")
             if repo.get('language'):
                 lines.append(f"- 🐍 {repo['language']}")
             if repo.get('description'):
