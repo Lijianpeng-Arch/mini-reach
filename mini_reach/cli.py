@@ -15,6 +15,7 @@ from loguru import logger
 
 from mini_reach import __version__
 from mini_reach.core import MiniReach
+from mini_reach.mcp_server import run_stdio_server
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -118,6 +119,10 @@ def main() -> int:
     # channels 命令
     channels_parser = subparsers.add_parser("channels", help="列出所有渠道")
     channels_parser.set_defaults(func=cmd_list_channels)
+
+    # mcp 命令
+    mcp_parser = subparsers.add_parser("mcp", help="启动 MCP 服务器")
+    mcp_parser.set_defaults(func=lambda args: run_stdio_server())
 
     # 解析参数
     args = parser.parse_args()
